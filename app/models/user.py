@@ -6,7 +6,6 @@
 
 from datetime import datetime
 from app import db
-from app.models.base import Model
 
 
 class User(Model):

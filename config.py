@@ -10,7 +10,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))  # 设置基础目录
 
 class Config(object):
     # 配置基础类
-    FLASK_APP = 'causal'
+    FLASK_APP = 'core'
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'TxuvWdN[PYOB2V0yMGn5q4Fk'
     LESS_BIN = '/usr/local/bin/lessc'
     SQLALCHEMY_TRACK_MODIFICATIONS = True  # 取消这个报警信息

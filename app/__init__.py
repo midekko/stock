@@ -3,8 +3,6 @@
     程序主目录
 """
 
-import os
-
 from flask import Flask
 from flask_assets import Environment
 from flask_sqlalchemy import SQLAlchemy

@@ -4,7 +4,6 @@
 # @File: task.py
 
 from datetime import datetime
-import pandas as pd
 
 from app import db
 

@@ -27,4 +27,3 @@
 │   └── __init__.py
 └── venv                        # python虚拟环境
     └── __init__.py
-```# stock

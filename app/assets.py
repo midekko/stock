@@ -3,7 +3,6 @@
 # @Time: 2020/6/30 13:32
 # @File: assets.py
 
-from flask import current_app as app
 from flask_assets import Bundle
 
 

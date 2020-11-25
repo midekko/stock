@@ -1,21 +1,19 @@
-from datetime import date
-from datetime import datetime
-
-import numpy as np
-import akshare as ak
 import copy
+from datetime import date, datetime, timedelta
+
+import akshare as ak
 import dash
 import dash_table
+import numpy as np
 import pandas as pd
+import plotly.express as px
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from .controls import *
-import plotly.express as px
 
 from app import db
 from app.models.stock import Stock
+from .controls import *
 from .layout import get_dash_layout
-
 
 layout = dict(
     autosize=True,
@@ -32,15 +30,18 @@ def create_dash(server):
     app = dash.Dash(
         server=server,
         meta_tags=[{"name": "viewport", "content": "width=device-width"}],
-       # routes_pathname_prefix='/stock/'
+        # routes_pathname_prefix='/stock/'
     )
 
     # Create app layout
     app.layout = get_dash_layout()
 
     @app.callback([Output('date', 'date'), Output('date', 'max_date_allowed')],
-                  Input('name', 'value'))
+                  Input('add', 'n_clicks'))
     def check_date(name):
+        now = datetime.now()
+        if now.hour < 11:
+            return [date.today() + timedelta(-1), date.today()]
         return [date.today(), date.today()]
 
     @app.callback([Output('cn_stock', 'value'), Output('hk_stock', 'value'), Output('us_stock', 'value')],
@@ -86,9 +87,9 @@ def create_dash(server):
         else:
             raise PreventUpdate
 
-
     @app.callback(
-        [Output("data_table", "children"), Output("hk", "data"), Output("us", "data"), Output("total_progress", "children"),
+        [Output("data_table", "children"), Output("hk", "data"), Output("us", "data"),
+         Output("total_progress", "children"),
          Output("total_progress", "value"), Output("info", "children"),
          Output("pie-chart", "figure"), Output("individual-chart", "figure"), Output("line-chart", "figure")],
         [Input('add', 'n_clicks'), Input('df_value', 'data')],
@@ -178,8 +179,8 @@ def create_dash(server):
 
         join_df = pd.merge(pd.concat([d1, d2]), new_df, on=['thedate', 'user_name'])
         join_df.sort_values(['thedate', 'user_name'], inplace=True, ascending=[False, True])
-        join_df['today']=join_df['total_x'].round(decimals=2)
-    
+        join_df['today'] = join_df['total_x'].round(decimals=2)
+
         tables = [
             dash_table.DataTable(
 
