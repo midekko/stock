@@ -38,6 +38,11 @@ def create_dash(server):
     # Create app layout
     app.layout = get_dash_layout()
 
+    @app.callback([Output('date', 'date'), Output('date', 'max_date_allowed')],
+                  Input('name', 'value'))
+    def check_date(name):
+        return [date.today(), date.today()]
+
     @app.callback([Output('cn_stock', 'value'), Output('hk_stock', 'value'), Output('us_stock', 'value')],
                   [Input('name', 'value'), Input('date', 'date')])
     def check_stock(name, date_value):

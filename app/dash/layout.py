@@ -67,7 +67,7 @@ def get_dash_layout():
                             html.P("支付日期:", className="control_label"),
                             dcc.DatePickerSingle(
                                 id='date',
-                                min_date_allowed=date(2020, 11, 12),
+                                min_date_allowed=date(2020, 11, 17),
                                 max_date_allowed=date(2030, 12, 31),
                                 initial_visible_month=date(2020, 11, 11),
                                 date=date.today(),
