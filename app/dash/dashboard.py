@@ -37,14 +37,15 @@ def create_dash(server):
     app.layout = get_dash_layout()
 
     @app.callback([Output('date', 'date'), Output('date', 'max_date_allowed')],
-                  Input('add', 'n_clicks'))
+                  Input('name', 'value'))
     def check_date(name):
         now = datetime.now()
         if now.hour < 11:
             return [date.today() + timedelta(-1), date.today()]
         return [date.today(), date.today()]
 
-    @app.callback([Output('cn_stock', 'value'), Output('hk_stock', 'value'), Output('us_stock', 'value')],
+    @app.callback([Output('cn_stock', 'value'), Output('hk_stock', 'value'),
+                   Output('us_stock', 'value'), Output('op', 'value')],
                   [Input('name', 'value'), Input('date', 'date')])
     def check_stock(name, date_value):
         if date_value is not None:
@@ -53,17 +54,18 @@ def create_dash(server):
             stock = Stock.query.filter(Stock.case_name == "core", Stock.user_name == name,
                                        Stock.thedate == thedate).first()
             if stock is not None:
-                return stock.cn_stock, stock.hk_stock, stock.us_stock
+                return stock.cn_stock, stock.hk_stock, stock.us_stock, xstr(stock.op)
             else:
-                return 0, 0, 0
+                return 0, 0, 0, ''
         else:
             raise PreventUpdate
 
     @app.callback([Output('df_value', 'data'), Output("loading_run_data", "children")],
                   [Input('add', 'n_clicks')],
                   [State('name', 'value'), State('date', 'date'),
-                   State('cn_stock', 'value'), State('hk_stock', 'value'), State('us_stock', 'value')])
-    def insert_update(click, name, date_value, cn_stock, hk_stock, us_stock):
+                   State('cn_stock', 'value'), State('hk_stock', 'value'),
+                   State('us_stock', 'value'), State('op', 'value')])
+    def insert_update(click, name, date_value, cn_stock, hk_stock, us_stock, op):
         if date_value is not None:
             date_object = date.fromisoformat(date_value)
             thedate = date_object.strftime('%Y-%m-%d')
@@ -71,12 +73,13 @@ def create_dash(server):
                                        Stock.thedate == thedate).first()
             if click is not None:
                 if stock is None:
-                    stock = Stock("core", name, thedate, cn_stock, hk_stock, us_stock)
+                    stock = Stock("core", name, thedate, cn_stock, hk_stock, us_stock, op)
                     stock.save()
                 else:
                     stock.cn_stock = xint(cn_stock)
                     stock.hk_stock = xint(hk_stock)
                     stock.us_stock = xint(us_stock)
+                    stock.op = op
                     stock.updated = datetime.now()
                     stock.update()
 
@@ -91,7 +94,7 @@ def create_dash(server):
         [Output("data_table", "children"), Output("hk", "data"), Output("us", "data"),
          Output("total_progress", "children"),
          Output("total_progress", "value"), Output("info", "children"),
-         Output("pie-chart", "figure"), Output("individual-chart", "figure"), Output("line-chart", "figure")],
+         Output("individual-chart", "figure"), Output("line-chart", "figure")],
         [Input('add', 'n_clicks'), Input('df_value', 'data')],
     )
     def fill_data_tab(click, data):
@@ -100,7 +103,9 @@ def create_dash(server):
         us = arr[0][0]
         hk = arr[0][1]
 
-        df = pd.DataFrame.from_dict(data)
+        origin = pd.DataFrame.from_dict(data)
+        df = origin.drop(columns=['op'])
+
         cn_total = df['cn_stock'].sum()
         hk_total = df['hk_stock'].sum() * hk
         us_total = df['us_stock'].sum() * us
@@ -111,19 +116,6 @@ def create_dash(server):
         dis, dis_r = total, round(total / 10000, 2)
         if total < 0:
             dis, dis_r = 0, 0
-
-            # 饼图
-        pie_df = pd.DataFrame([['A股', cn_total], ['港股', hk_total], ['美股', us_total]], columns=['stock', 'total'])
-        layout_pie = copy.deepcopy(layout)
-        pie_data = [
-            dict(
-                type="pie",
-                labels=pie_df['stock'].to_numpy(),
-                values=pie_df['total'].to_numpy(),
-            ),
-        ]
-        layout_pie["height"] = '200'
-        pai_fig = dict(data=pie_data, layout=layout_pie)
 
         # 柱状图
         bar_df = df.groupby(["user_name"])['total'].sum().reset_index()
@@ -192,10 +184,6 @@ def create_dash(server):
                 page_action='none',
                 style_cell={'textAlign': 'left'},
                 style_data_conditional=[
-                    # {
-                    #     'if': {'row_index': 'odd'},
-                    #     'backgroundColor': 'rgb(248, 248, 248)'
-                    # },
                     {
                         'if': {
                             'filter_query': '{{user_name}} = {}'.format('ALL'),
@@ -208,11 +196,79 @@ def create_dash(server):
                     'backgroundColor': 'rgb(230, 230, 230)',
                     'fontWeight': 'bold'
                 },
-                style_table={'height': '350px', 'overflowY': 'auto'}
+                style_table={'height': '360px', 'overflowY': 'auto'}
             ),
         ]
 
-        return tables, hk, us, dis, dis_r, info, pai_fig, bar_fig, line_fig
+        return tables, hk, us, dis, dis_r, info, bar_fig, line_fig
+
+
+    @app.callback(
+        [Output("pie-chart", "figure"), Output("op_table", "children")],
+        [Input('add', 'n_clicks'), Input('choose_name', 'value'),
+         Input('df_value', 'data'), Input("hk", "data"), Input("us", "data")],
+    )
+    def fill_data_tab_dynamic(click, name, data, hk, us):
+        origin = pd.DataFrame.from_dict(data)
+        if name == 'ALL':
+            df = origin.drop(columns=['op'])
+            ops = origin[(origin['op'].notnull()) & (origin['op'] != '')]
+        else:
+            df = origin[origin['user_name'] == name].drop(columns=['op'])
+            ops = origin[(origin['op'].notnull()) & (origin['op'] != '') & (origin['user_name'] == name)]
+
+        cn_total = df['cn_stock'].sum()
+        hk_total = df['hk_stock'].sum() * hk
+        us_total = df['us_stock'].sum() * us
+
+        # 饼图
+        pie_df = pd.DataFrame([['美股', us_total], ['港股', hk_total], ['A股', cn_total]], columns=['stock', 'total'])
+        layout_pie = copy.deepcopy(layout)
+        pie_data = [
+            {
+                "type": "bar",
+                "x": pie_df['total'].values,
+                "y": pie_df['stock'].values,
+                "orientation": "h",
+                "showlegend": False,
+                "marker": {
+                    "color": ['green', 'cyan', 'red']
+                },
+            },
+        ]
+        layout_pie["height"] = '150'
+        pai_fig = dict(data=pie_data, layout=layout_pie)
+
+        ops['niubility'] = ops['op'].apply(lambda x: '↗️' if x.startswith('#') else '↘️')
+        ops['o'] = ops['op'].apply(lambda x: x[1:] if x.startswith('#') else x)
+        ops.sort_values(['thedate'], inplace=True, ascending=[True])
+
+        tables = [
+            dash_table.DataTable(
+
+                columns=[{"name": '日期', "id": 'thedate'}, {"name": '类型', "id": 'niubility'},
+                         {"name": '操作', "id": 'o'}],
+                data=ops.to_dict('records'),
+                page_action='none',
+                style_cell={'textAlign': 'left'},
+                style_data_conditional=[
+                    {
+                        'if': {
+                            'filter_query': '{{user_name}} = {}'.format('ALL'),
+                        },
+                        'backgroundColor': '#4d80e6',
+                        'color': 'white'
+                    },
+                ],
+                style_header={
+                    'backgroundColor': 'rgb(230, 230, 230)',
+                    'fontWeight': 'bold'
+                },
+                style_table={'height': '200px', 'overflowY': 'auto'}
+            ),
+        ]
+
+        return pai_fig, tables
 
     return app.server
 

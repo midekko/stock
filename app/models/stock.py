@@ -19,8 +19,9 @@ class Stock(db.Model):
     us_stock = db.Column(db.Float, default=0)
     created = db.Column(db.DateTime, default=datetime.now)
     updated = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
+    op = db.Column(db.String(512))
 
-    def __init__(self, case_name, user_name, thedate, cn_stock, hk_stock, us_stock):
+    def __init__(self, case_name, user_name, thedate, cn_stock, hk_stock, us_stock, op):
         super().__init__()
         self.case_name = case_name
         self.user_name = user_name
@@ -30,6 +31,7 @@ class Stock(db.Model):
         self.us_stock = us_stock
         self.created = datetime.now()
         self.updated = datetime.now()
+        self.op = op
 
     # def __repr__(self):
     #     return '<Stock %r>' % self.caseName

@@ -56,7 +56,6 @@ def get_dash_layout():
                 [
                     html.Div(
                         [
-                            html.P("大佬:", className="control_label"),
                             dcc.Dropdown(
                                 id="name",
                                 options=dict_options(NAMES),
@@ -72,26 +71,32 @@ def get_dash_layout():
                                 initial_visible_month=date(2020, 11, 11),
                                 date=date.today(),
                                 display_format='YYYY-MM-DD',
-                                className="dcc_control",
                             ),
-                            html.P("A股:", className="control_label"),
+                            html.P("A股/元:", className="control_label"),
                             dcc.Input(
                                 id="cn_stock",
-                                placeholder="单位/人民币",
+                                placeholder="单位/元",
                                 className="dcc_control",
                                 style={'width': '100%', "display": "block"},
                             ),
-                            html.P("港股:", className="control_label"),
+                            html.P("港股/港币:", className="control_label"),
                             dcc.Input(
                                 id="hk_stock",
                                 placeholder="单位/港币",
                                 className="dcc_control",
                                 style={'width': '100%', "display": "block"},
                             ),
-                            html.P("美股:", className="control_label"),
+                            html.P("美股/美金:", className="control_label"),
                             dcc.Input(
                                 id="us_stock",
-                                placeholder="单位/美元",
+                                placeholder="单位/美金",
+                                className="dcc_control",
+                                style={'width': '100%', "display": "block"},
+                            ),
+                            html.P("操作:", className="control_label"),
+                            dcc.Input(
+                                id="op",
+                                placeholder="默认输入瞎比操作，牛逼操作#打头",
                                 className="dcc_control",
                                 style={'width': '100%', "display": "block"},
                             ),
@@ -131,11 +136,24 @@ def get_dash_layout():
                     html.Div(
                         [
                             html.Div(
-                                dcc.Graph(id="pie-chart", config={"displayModeBar": False}),
+                                dcc.Graph(id="individual-chart", config={"displayModeBar": False}),
                                 className="pretty_container",
                             ),
                             html.Div(
-                                dcc.Graph(id="individual-chart", config={"displayModeBar": False}),
+                                [
+                                    dcc.Dropdown(
+                                        id="choose_name",
+                                        options=total_names(NAMES),
+                                        multi=False,
+                                        value='ALL',
+                                        className="dcc_control",
+                                    ),
+                                    dcc.Graph(id="pie-chart", config={"displayModeBar": False}),
+                                ],
+                                className="pretty_container",
+                            ),
+                            html.Div(
+                                id="op_table",
                                 className="pretty_container",
                             ),
                         ],

@@ -11,6 +11,12 @@ def dict_options(dict):
     ]
 
 
+def total_names(dict):
+    d = dict_options(dict)
+    d.append({"label": "ALL", "value": "ALL"})
+    return d
+
+
 def dict_options_s(dict):
     return [
         {"label": str(k), "value": str(k)}
