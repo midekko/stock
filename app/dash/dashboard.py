@@ -4,11 +4,13 @@ from datetime import date, datetime, timedelta
 import akshare as ak
 import dash
 import dash_table
+import dash_auth
 import numpy as np
 import pandas as pd
 import plotly.express as px
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from flask import request
 
 from app import db
 from app.models.stock import Stock
@@ -33,16 +35,23 @@ def create_dash(server):
         # routes_pathname_prefix='/stock/'
     )
 
+    auth = dash_auth.BasicAuth(
+        app,
+        VALID_USERNAME_PASSWORD_PAIRS
+    )
+
     # Create app layout
     app.layout = get_dash_layout()
 
-    @app.callback([Output('date', 'date'), Output('date', 'max_date_allowed')],
-                  Input('name', 'value'))
+    @app.callback([Output('date', 'date'), Output('date', 'max_date_allowed'),
+                   Output('name', 'value')],
+                  Input('title', 'children'))
     def check_date(name):
+        username = request.authorization['username']
         now = datetime.now()
         if now.hour < 11:
-            return [date.today() + timedelta(-1), date.today()]
-        return [date.today(), date.today()]
+            return date.today() + timedelta(-1), date.today(), EN_NAMES[username]
+        return date.today(), date.today(), EN_NAMES[username]
 
     @app.callback([Output('cn_stock', 'value'), Output('hk_stock', 'value'),
                    Output('us_stock', 'value'), Output('op', 'value')],

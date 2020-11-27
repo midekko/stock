@@ -62,6 +62,8 @@ def get_dash_layout():
                                 multi=False,
                                 value=list(NAMES.keys())[0],
                                 className="dcc_control",
+                                clearable=False,
+                                searchable=False,
                             ),
                             html.P("支付日期:", className="control_label"),
                             dcc.DatePickerSingle(
@@ -147,6 +149,8 @@ def get_dash_layout():
                                         multi=False,
                                         value='ALL',
                                         className="dcc_control",
+                                        clearable=False,
+                                        searchable=False,
                                     ),
                                     dcc.Graph(id="pie-chart", config={"displayModeBar": False}),
                                 ],
