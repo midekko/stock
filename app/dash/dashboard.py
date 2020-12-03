@@ -35,10 +35,10 @@ def create_dash(server):
         # routes_pathname_prefix='/stock/'
     )
 
-    auth = dash_auth.BasicAuth(
-        app,
-        VALID_USERNAME_PASSWORD_PAIRS
-    )
+#    auth = dash_auth.BasicAuth(
+#        app,
+#        VALID_USERNAME_PASSWORD_PAIRS
+#    )
 
     # Create app layout
     app.layout = get_dash_layout()
@@ -47,7 +47,7 @@ def create_dash(server):
                    Output('name', 'value')],
                   Input('title', 'children'))
     def check_date(name):
-        username = request.authorization['username']
+        username = 'dong' #request.authorization['username']
         now = datetime.now()
         if now.hour < 11:
             return date.today() + timedelta(-1), date.today(), EN_NAMES[username]
