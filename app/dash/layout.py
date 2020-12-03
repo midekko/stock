@@ -176,7 +176,7 @@ def get_dash_layout():
                                 clearable=False,
                                 searchable=False,
                             ),
-                            dcc.Graph(id="line-chart")
+                            dcc.Graph(id="line-chart", config={"displayModeBar": False})
                         ],
                         className="pretty_container eight columns",
                     ),

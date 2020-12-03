@@ -213,7 +213,7 @@ def create_dash(server):
 
         line_fig = px.line(new_df, x='thedate', y='cum', color="user_name", line_group="user_name", height=400)
         line_fig.update_xaxes(
-            tickformat="%Y-%m-%d",
+            tickformat="%m-%d",
             rangeslider_visible=False,
             rangeselector=dict(
                 buttons=list([
@@ -223,9 +223,18 @@ def create_dash(server):
                     dict(count=1, label="近1年", step="year", stepmode="backward"),
                     dict(step="all")
                 ])
-            ),
+            )
         )
-        line_fig.update_layout(paper_bgcolor="#F9F9F9")
+        line_fig.update_layout(
+            showlegend=True,
+            plot_bgcolor="#F9F9F9",
+            paper_bgcolor="#F9F9F9",
+            autosize=True,
+            margin=dict(t=10, l=10, b=10, r=10),
+            legend=dict(orientation="h", title=''),
+            xaxis_title='',
+            yaxis_title=''
+        )
 
         return [line_fig]
 
