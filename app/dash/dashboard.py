@@ -35,10 +35,10 @@ def create_dash(server):
         # routes_pathname_prefix='/stock/'
     )
 
-#    auth = dash_auth.BasicAuth(
-#        app,
-#        VALID_USERNAME_PASSWORD_PAIRS
-#    )
+    # auth = dash_auth.BasicAuth(
+    #     app,
+    #     VALID_USERNAME_PASSWORD_PAIRS
+    # )
 
     # Create app layout
     app.layout = get_dash_layout()
@@ -85,9 +85,9 @@ def create_dash(server):
                     stock = Stock("core", name, thedate, cn_stock, hk_stock, us_stock, op)
                     stock.save()
                 else:
-                    stock.cn_stock = xint(cn_stock)
-                    stock.hk_stock = xint(hk_stock)
-                    stock.us_stock = xint(us_stock)
+                    stock.cn_stock = xfloat(cn_stock)
+                    stock.hk_stock = xfloat(hk_stock)
+                    stock.us_stock = xfloat(us_stock)
                     stock.op = op
                     stock.updated = datetime.now()
                     stock.update()
@@ -103,7 +103,7 @@ def create_dash(server):
         [Output("data_table", "children"), Output("hk", "data"), Output("us", "data"),
          Output("total_progress", "children"),
          Output("total_progress", "value"), Output("info", "children"),
-         Output("individual-chart", "figure"), Output("line-chart", "figure")],
+         Output("individual-chart", "figure"), Output('new_df', 'data')],
         [Input('add', 'n_clicks'), Input('df_value', 'data')],
     )
     def fill_data_tab(click, data):
@@ -162,22 +162,6 @@ def create_dash(server):
         # new_df.sort_values(['thedate', 'user_name'], inplace=True, ascending=[True, True])
         new_df['ratio'] = round(new_df['total'] / 10000, 2)
 
-        line_fig = px.line(new_df, x='thedate', y='total', color="user_name", line_group="user_name", height=400)
-        line_fig.update_xaxes(
-            tickformat="%Y-%m-%d",
-            rangeslider_visible=False,
-            rangeselector=dict(
-                buttons=list([
-                    dict(count=1, label="1个月", step="month", stepmode="backward"),
-                    dict(count=6, label="6个月", step="month", stepmode="backward"),
-                    dict(count=1, label="今年", step="year", stepmode="todate"),
-                    dict(count=1, label="近1年", step="year", stepmode="backward"),
-                    dict(step="all")
-                ])
-            ),
-        )
-        line_fig.update_layout(paper_bgcolor="#F9F9F9")
-
         join_df = pd.merge(pd.concat([d1, d2]), new_df, on=['thedate', 'user_name'])
         join_df.sort_values(['thedate', 'user_name'], inplace=True, ascending=[False, True])
         join_df['today'] = join_df['total_x'].round(decimals=2)
@@ -209,8 +193,41 @@ def create_dash(server):
             ),
         ]
 
-        return tables, hk, us, dis, dis_r, info, bar_fig, line_fig
+        return tables, hk, us, dis, dis_r, info, bar_fig, new_df.to_dict('records')
 
+    @app.callback(
+        [Output("line-chart", "figure")],
+        [Input('add', 'n_clicks'), Input('choose_stock', 'value'),
+         Input('new_df', 'data'), Input("hk", "data"), Input("us", "data")],
+    )
+    def fill_line_chart(click, stock, data, hk, us):
+        new_df = pd.DataFrame.from_dict(data)
+        if stock == 'cn':
+            new_df['cum'] = new_df['cn_stock']
+        elif stock == 'hk':
+            new_df['cum'] = new_df['hk_stock'] * hk
+        elif stock == 'us':
+            new_df['cum'] = new_df['us_stock'] * us
+        else:
+            new_df['cum'] = new_df['total']
+
+        line_fig = px.line(new_df, x='thedate', y='cum', color="user_name", line_group="user_name", height=400)
+        line_fig.update_xaxes(
+            tickformat="%Y-%m-%d",
+            rangeslider_visible=False,
+            rangeselector=dict(
+                buttons=list([
+                    dict(count=1, label="1个月", step="month", stepmode="backward"),
+                    dict(count=6, label="6个月", step="month", stepmode="backward"),
+                    dict(count=1, label="今年", step="year", stepmode="todate"),
+                    dict(count=1, label="近1年", step="year", stepmode="backward"),
+                    dict(step="all")
+                ])
+            ),
+        )
+        line_fig.update_layout(paper_bgcolor="#F9F9F9")
+
+        return [line_fig]
 
     @app.callback(
         [Output("pie-chart", "figure"), Output("op_table", "children")],
@@ -288,3 +305,7 @@ def xstr(s):
 
 def xint(s):
     return 0 if not s else int(s)
+
+
+def xfloat(s):
+    return 0 if not s else float(s)

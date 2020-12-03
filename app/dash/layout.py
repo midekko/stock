@@ -160,11 +160,24 @@ def get_dash_layout():
                                 id="op_table",
                                 className="pretty_container",
                             ),
+                            dcc.Store(id='new_df', storage_type='memory'),
                         ],
                         className="four columns",
                     ),
                     html.Div(
-                        [dcc.Graph(id="line-chart")],
+                        [
+                            dcc.Dropdown(
+                                id="choose_stock",
+                                options=[{"label": "总计", "value": "all"}, {"label": "A股", "value": "cn"},
+                                         {"label": "港股", "value": "hk"}, {"label": "美股", "value": "us"}],
+                                multi=False,
+                                value='all',
+                                className="dcc_control",
+                                clearable=False,
+                                searchable=False,
+                            ),
+                            dcc.Graph(id="line-chart")
+                        ],
                         className="pretty_container eight columns",
                     ),
                 ],
