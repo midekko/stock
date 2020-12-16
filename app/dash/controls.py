@@ -10,9 +10,10 @@ NAMES = {
     "表哥": "表哥",
     "萌萌": "萌萌",
     "渔歌": "渔歌",
+    "阿谭": "阿谭",
 }
 
-COLORS = ["green", "blue", "orange", "red", "cyan", "gray"]
+COLORS = ["green", "blue", "orange", "red", "cyan", "gray", "yellow"]
 
 EN_NAMES = {
     "dong": "栋哥",
@@ -21,6 +22,7 @@ EN_NAMES = {
     "lei": "表哥",
     "meng": "萌萌",
     "yu": "渔歌",
+    "tan": "阿谭",
 }
 
 VALID_USERNAME_PASSWORD_PAIRS = dict([(k, 'core') for k in EN_NAMES.keys()])

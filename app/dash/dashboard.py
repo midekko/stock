@@ -144,7 +144,7 @@ def create_dash(server):
                 },
             },
         ]
-        layout_bar["height"] = '200'
+        layout_bar["height"] = '240'
         bar_fig = dict(data=bar_data, layout=layout_bar)
 
         d1 = df[['thedate', 'cn_stock', 'hk_stock', 'us_stock', 'total', 'user_name']]
@@ -227,7 +227,7 @@ def create_dash(server):
         )
         line_fig.update_layout(
             showlegend=True,
-            plot_bgcolor="#F9F9F9",
+            #plot_bgcolor="#F9F9F9",
             paper_bgcolor="#F9F9F9",
             autosize=True,
             margin=dict(t=10, l=10, b=10, r=10),
