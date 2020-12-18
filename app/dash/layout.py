@@ -65,6 +65,80 @@ def get_dash_layout():
                                 clearable=False,
                                 searchable=False,
                             ),
+                            html.P("持仓类型:", className="control_label"),
+                            dcc.Dropdown(
+                                id="hold_category",
+                                options=[{"label": "基金", "value": "fund"}, {"label": "股票", "value": "stock"},
+                                         {"label": "期权", "value": "option"}, {"label": "RSU归属", "value": "rsu"}],
+                                multi=False,
+                                value='stock',
+                                className="dcc_control",
+                                clearable=False,
+                                searchable=False,
+                            ),
+                            html.P("代码:", className="control_label"),
+                            dcc.Input(
+                                id="hold_code",
+                                placeholder="688981/SMICY",
+                                className="dcc_control",
+                                style={'width': '100%', "display": "block"},
+                            ),
+                            html.P("股数/持仓份额:", className="control_label"),
+                            dcc.Input(
+                                id="hold_num",
+                                placeholder="比如基金份额256897.2份",
+                                className="dcc_control",
+                                style={'width': '100%', "display": "block"},
+                            ),
+                            html.P("持仓成本:", className="control_label"),
+                            dcc.Input(
+                                id="hold_price",
+                                placeholder="比如中芯国际43.5买入",
+                                className="dcc_control",
+                                style={'width': '100%', "display": "block"},
+                            ),
+                            html.Button(
+                                '更新', id='hold_add', style={"margin-left": '5px', "margin-top": '10px'}
+                            ),
+                            html.Button(
+                                '删除', id='hold_del', style={"margin-left": '5px', "margin-top": '10px'}
+                            ),
+                            dcc.Store(id='hold_value', storage_type='memory'),
+                            dcc.Loading(id="loading_hold_data", type="default"),
+                            dcc.Store(id='fund_s', storage_type='memory'),
+                            dcc.Store(id='cn_s', storage_type='memory'),
+                            dcc.Store(id='hk_s', storage_type='memory'),
+                            dcc.Store(id='us_s', storage_type='memory'),
+                        ],
+                        className="pretty_container four columns",
+                        id="hold-filter-options",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.P(id="hold_info"),
+                                    # html.Button(
+                                    #     '更新', id='daily_update', style={"margin-left": '5px', "margin-top": '10px'}
+                                    # ),
+                                ],
+                                className="pretty_container",
+                            ),
+                            html.Div(
+                                id="hold_table",
+                                className="pretty_container",
+                            ),
+                        ],
+                        id="right-column-hold",
+                        className="eight columns",
+                    ),
+                ],
+                className="row flex-display",
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        [
                             html.P("支付日期:", className="control_label"),
                             dcc.DatePickerSingle(
                                 id='date',
@@ -92,6 +166,13 @@ def get_dash_layout():
                             dcc.Input(
                                 id="us_stock",
                                 placeholder="单位/美金",
+                                className="dcc_control",
+                                style={'width': '100%', "display": "block"},
+                            ),
+                            html.P("基金:", className="control_label"),
+                            dcc.Input(
+                                id="fund_stock",
+                                placeholder="单位/元",
                                 className="dcc_control",
                                 style={'width': '100%', "display": "block"},
                             ),
@@ -141,6 +222,26 @@ def get_dash_layout():
                                 dcc.Graph(id="individual-chart", config={"displayModeBar": False}),
                                 className="pretty_container",
                             ),
+                            dcc.Store(id='new_df', storage_type='memory'),
+                        ],
+                        className="five columns",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                dcc.Graph(id="daily-chart", config={"displayModeBar": False}),
+                                className="pretty_container",
+                            ),
+                        ],
+                        className="seven columns",
+                    ),
+                ],
+                className="row flex-display",
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        [
                             html.Div(
                                 [
                                     dcc.Dropdown(
@@ -160,7 +261,6 @@ def get_dash_layout():
                                 id="op_table",
                                 className="pretty_container",
                             ),
-                            dcc.Store(id='new_df', storage_type='memory'),
                         ],
                         className="four columns",
                     ),
@@ -169,7 +269,8 @@ def get_dash_layout():
                             dcc.Dropdown(
                                 id="choose_stock",
                                 options=[{"label": "总计", "value": "all"}, {"label": "A股", "value": "cn"},
-                                         {"label": "港股", "value": "hk"}, {"label": "美股", "value": "us"}],
+                                         {"label": "港股", "value": "hk"}, {"label": "美股", "value": "us"},
+                                         {"label": "基金", "value": "fund"}],
                                 multi=False,
                                 value='all',
                                 className="dcc_control",

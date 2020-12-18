@@ -1,37 +1,33 @@
 # -*- coding: utf-8 -*-
 # @Author: zhanglei
 # @Time: 2020/6/29 20:04
-# @File: task.py
+# @File: position.py
 
 from datetime import datetime
 
 from app import db
 
 
-class Stock(db.Model):
-    __tablename__ = 'stock'
+class Position(db.Model):
+    __tablename__ = 'position'
 
     case_name = db.Column(db.String(128), nullable=False, primary_key=True)
     user_name = db.Column(db.String(256), nullable=False, primary_key=True)
-    thedate = db.Column(db.String(12), nullable=False, primary_key=True)
-    cn_stock = db.Column(db.Float, default=0)
-    hk_stock = db.Column(db.Float, default=0)
-    us_stock = db.Column(db.Float, default=0)
-    fund_stock = db.Column(db.Float, default=0)
+    hold_code = db.Column(db.String(30), nullable=False, primary_key=True)
+    hold_category = db.Column(db.String(20), nullable=False)
+    hold_num = db.Column(db.Float, default=0)
+    hold_price = db.Column(db.Float, default=0)
     created = db.Column(db.DateTime, default=datetime.now)
     updated = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now)
-    op = db.Column(db.String(512))
 
-    def __init__(self, case_name, user_name, thedate, cn_stock, hk_stock, us_stock, fund_stock, op):
+    def __init__(self, case_name, user_name, hold_category, hold_code, hold_num, hold_price):
         super().__init__()
         self.case_name = case_name
         self.user_name = user_name
-        self.thedate = thedate
-        self.cn_stock = cn_stock
-        self.hk_stock = hk_stock
-        self.us_stock = us_stock
-        self.fund_stock = fund_stock
-        self.op = op
+        self.hold_category = hold_category
+        self.hold_code = hold_code
+        self.hold_num = hold_num
+        self.hold_price = hold_price
         self.created = datetime.now()
         self.updated = datetime.now()
 
@@ -47,3 +43,7 @@ class Stock(db.Model):
         db.session.merge(self)
         db.session.commit()
         return self
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
