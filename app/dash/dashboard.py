@@ -121,8 +121,8 @@ def create_dash(server):
         total = cn_total + hk_total + us_total
         df['total'] = round(df['cn_stock'] + df['hk_stock'] * hk + df['us_stock'] * us, 2)
         info = "1/港元 = " + str(hk) + " /元, 1/美元 = " + str(us) + " /元" + ", 总盈利: " + str(round(total, 2)) + \
-               ",  100w完成度: " + str(round(total / 10000, 2)) + "%"
-        dis, dis_r = total, round(total / 10000, 2)
+               ",  1000w完成度: " + str(round(total / 100000, 2)) + "%"
+        dis, dis_r = total, round(total / 100000, 2)
         if total < 0:
             dis, dis_r = 0, 0
 
