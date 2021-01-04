@@ -16,42 +16,42 @@ def get_dash_layout():
     return html.Div(
         [
             dcc.Store(id="aggregate_data", storage_type='session'),
-            html.Div(id="output-clientside"),
-            html.Div(
-                [
-                    html.Div(
-                        [
-                            html.Img(
-                                src="",
-                                id="plotly-image",
-                                style={
-                                    "height": "60px",
-                                    "width": "auto",
-                                    "margin-bottom": "25px",
-                                },
-                            )
-                        ],
-                        className="one-third column",
-                    ),
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    html.H3(
-                                        "core的100w期权目标",
-                                        style={"margin-bottom": "0px"},
-                                    ),
-                                ]
-                            )
-                        ],
-                        className="one-half column",
-                        id="title",
-                    ),
-                ],
-                id="header",
-                className="row flex-display",
-                style={"margin-bottom": "25px"},
-            ),
+            # html.Div(id="output-clientside"),
+            # html.Div(
+            #     [
+            #         html.Div(
+            #             [
+            #                 html.Img(
+            #                     src="",
+            #                     id="plotly-image",
+            #                     style={
+            #                         "height": "60px",
+            #                         "width": "auto",
+            #                         "margin-bottom": "25px",
+            #                     },
+            #                 )
+            #             ],
+            #             className="one-third column",
+            #         ),
+            #         html.Div(
+            #             [
+            #                 html.Div(
+            #                     [
+            #                         html.H3(
+            #                             "core的100w期权目标",
+            #                             style={"margin-bottom": "0px"},
+            #                         ),
+            #                     ]
+            #                 )
+            #             ],
+            #             className="one-half column",
+            #             id="title",
+            #         ),
+            #     ],
+            #     id="header",
+            #     className="row flex-display",
+            #     style={"margin-bottom": "25px"},
+            # ),
             html.Div(
                 [
                     html.Div(
